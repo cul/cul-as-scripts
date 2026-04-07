@@ -1,0 +1,10 @@
+*/__pycache__/*
+.coverage
+.tox
+build
+*.egg-info
+.pytest_cache
+env/
+*.cfg
+*.log
+.DS_Store

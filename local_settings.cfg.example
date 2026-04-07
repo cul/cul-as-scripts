@@ -1,0 +1,4 @@
+[ArchivesSpace]
+baseurl: https://sandbox.archivesspace.org/api/
+username: admin
+password: admin
