@@ -8,3 +8,4 @@ env/
 *.cfg
 *.log
 .DS_Store
+*.csv
