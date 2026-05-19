@@ -1,4 +1,5 @@
 [ArchivesSpace]
-baseurl: https://sandbox.archivesspace.org/api/
+prod_baseurl: https://sandbox.archivesspace.org/api/
+dev_baseurl: https://sandbox.archivesspace.org/api/
 username: admin
-password: admin
+password: pass
