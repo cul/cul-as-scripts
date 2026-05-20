@@ -95,3 +95,24 @@ class AspaceBarcodeUpdater:
     def __init__(self, mode="dev"):
         configure_logging(f"aspace_barcode_updater_{mode}.log")
         self.as_client = ArchivesSpaceClient(mode=mode)
+
+    def run(self, input_spreadsheet):
+        with open(input_spreadsheet, "r") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                try:
+                    msg = self.add_barcode_to_top_container(
+                        row["folio_barcode"], row["aspace_uri"]
+                    )
+                    logging.info(msg)
+                except Exception as e:
+                    logging.error(
+                        f"Error processing {row['folio_barcode']} in {row['instance_hrid']}: {e}"
+                    )
+
+    def add_barcode_to_top_container(self, barcode, top_container_uri):
+        top_container_json = self.as_client.aspace.client.get(top_container_uri).json()
+        if top_container_json.get("barcode"):
+            raise ValueError(f"Top container {top_container_uri} already has barcode.")
+        self.as_client.update_aspace_field(top_container_json, "barcode", barcode)
+        return f"Successfully added {barcode} to {top_container_uri}."
