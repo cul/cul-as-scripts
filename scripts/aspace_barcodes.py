@@ -9,7 +9,7 @@ class AspaceBarcodeFetcher:
     """Fetches top container barcodes from ArchivesSpace using FOLIO HRIDs."""
 
     def __init__(self, mode="dev"):
-        configure_logging(f"get_aspace_barcodes_{mode}.log")
+        configure_logging(f"aspace_barcode_fetcher_{mode}.log")
         self.as_client = ArchivesSpaceClient(mode=mode)
         self.repo = self.as_client.aspace.repositories(self.as_client.RBML_REPO_ID)
 
@@ -87,3 +87,11 @@ class AspaceBarcodeFetcher:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(rows)
+
+
+class AspaceBarcodeUpdater:
+    """Adds barcodes to ASpace top containers using information from a spreadsheet."""
+
+    def __init__(self, mode="dev"):
+        configure_logging(f"aspace_barcode_updater_{mode}.log")
+        self.as_client = ArchivesSpaceClient(mode=mode)

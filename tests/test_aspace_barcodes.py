@@ -2,13 +2,13 @@ import csv
 
 import pytest
 
-from scripts.get_aspace_barcodes import AspaceBarcodeFetcher
+from scripts.aspace_barcodes import AspaceBarcodeFetcher
 from scripts.helpers import write_data_to_csv
 
 
 @pytest.fixture
 def aspace_barcodes(mock_aspace, mock_config, mocker):
-    mocker.patch("scripts.get_aspace_barcodes.configure_logging")
+    mocker.patch("scripts.aspace_barcodes.configure_logging")
     return AspaceBarcodeFetcher("dev")
 
 
@@ -63,7 +63,7 @@ def test_get_rows_for_hrid_no_containers(aspace_barcodes, mocker):
         "get_top_containers_for_resource",
         return_value=[],
     )
-    mock_warning = mocker.patch("scripts.get_aspace_barcodes.logging.warning")
+    mock_warning = mocker.patch("scripts.aspace_barcodes.logging.warning")
 
     aspace_barcodes.get_rows_for_hrid("in123456")
 
