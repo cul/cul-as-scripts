@@ -120,7 +120,10 @@ def test_add_barcode_to_top_container_no_barcode(barcode_updater, mocker):
         "123456789", "/repositories/2/top_containers/1"
     )
 
-    assert result == "Successfully added 123456789 to /repositories/2/top_containers/1."
+    expected_message = (
+        "Successfully added 123456789 and location to /repositories/2/top_containers/1."
+    )
+    assert result == expected_message
 
 
 def test_add_barcode_to_top_container_with_barcode(barcode_updater, mocker):
@@ -146,9 +149,19 @@ def test_run(barcode_updater, mocker, tmp_path):
     csv_path = tmp_path / "barcodes.csv"
     write_data_to_csv(
         [
-            ["instance_hrid", "folio_barcode", "aspace_uri"],
-            ["in1234567", "UA00012345", "/repositories/2/top_containers/1"],
-            ["in1234567", "UA00054321", "/repositories/2/top_containers/2"],
+            ["instance_hrid", "title", "folio_barcode", "aspace_uri"],
+            [
+                "in1234567",
+                "University Records",
+                "UA00012345",
+                "/repositories/2/top_containers/1",
+            ],
+            [
+                "in1234567",
+                "University Records",
+                "UA00054321",
+                "/repositories/2/top_containers/2",
+            ],
         ],
         csv_path,
     )
@@ -173,6 +186,6 @@ def test_run(barcode_updater, mocker, tmp_path):
         "Successfully added UA00012345 to /repositories/2/top_containers/1."
     )
     mock_error.assert_called_once_with(
-        "Error processing UA00054321 in in1234567: "
+        "Error processing UA00054321 in University Records: "
         "Top container /repositories/2/top_containers/2 already has barcode."
     )

@@ -107,12 +107,15 @@ class AspaceBarcodeUpdater:
                     logging.info(msg)
                 except Exception as e:
                     logging.error(
-                        f"Error processing {row['folio_barcode']} in {row['instance_hrid']}: {e}"
+                        f"Error processing {row['folio_barcode']} in {row['title']}: {e}"
                     )
 
-    def add_barcode_to_top_container(self, barcode, top_container_uri):
+    def add_barcode_to_top_container(
+        self, barcode, top_container_uri, location="/locations/2"
+    ):
         top_container_json = self.as_client.aspace.client.get(top_container_uri).json()
         if top_container_json.get("barcode"):
             raise ValueError(f"Top container {top_container_uri} already has barcode.")
         self.as_client.update_aspace_field(top_container_json, "barcode", barcode)
-        return f"Successfully added {barcode} to {top_container_uri}."
+        self.as_client.add_location_to_top_container(top_container_uri, location)
+        return f"Successfully added {barcode} and location to {top_container_uri}."
