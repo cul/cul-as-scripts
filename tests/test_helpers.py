@@ -8,6 +8,7 @@ from scripts.helpers import (
     construct_external_doc,
     construct_instance_with_container,
     construct_multipart_note,
+    construct_rbml_location,
     create_date_object,
     has_one_series,
     write_data_to_csv,
@@ -77,6 +78,17 @@ def test_construct_external_doc():
     assert not result["publish"]
 
 
+def test_construct_rbml_location():
+    result = construct_rbml_location("Stack 1", "2e", "3", "4")
+    assert result["floor"] == "Stack 1"
+    assert result["location_profile"]["ref"] == "/location_profiles/31"
+
+
+def test_construct_rbml_location_custom_profile():
+    result = construct_rbml_location("Stack 1", "2e", "3", "4", "/location_profiles/99")
+    assert result["location_profile"]["ref"] == "/location_profiles/99"
+
+
 def test_construct_instance_with_container():
     container_uri = "/repositories/2/top_containers/1234"
     result = construct_instance_with_container(container_uri)
@@ -110,4 +122,5 @@ def test_collection_matches_series():
         "Series I. Village Green Preservation Society Records",
     ]:
         assert collection_matches_series(collection_title, series_title)
+    assert not collection_matches_series(collection_title, "Series II: Something Else")
     assert not collection_matches_series(collection_title, "Series II: Something Else")

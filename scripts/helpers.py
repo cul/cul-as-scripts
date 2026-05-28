@@ -114,6 +114,36 @@ def construct_external_doc(title, location, publish=False):
     }
 
 
+def construct_rbml_location(
+    floor, aisle, section, shelf, location_profile="/location_profiles/31"
+):
+    """Build an ArchivesSpace location dict for RBML.
+
+    Args:
+           floor (str): The floor coordinate (e.g., "Stack 14")
+           aisle (str): The aisle coordinate (e.g., "3e")
+           section (str): The section coordinate (e.g., "6")
+           shelf (str): The shelf coordinate (e.g., "2")
+           location_profile (str): URI of the location profile
+
+    Returns:
+        dict: ASpace location JSON object
+    """
+    return {
+        "jsonmodel_type": "location",
+        "building": "Butler",
+        "floor": floor,
+        "coordinate_1_label": "Aisle",
+        "coordinate_1_indicator": aisle,
+        "coordinate_2_label": "Section",
+        "coordinate_2_indicator": section,
+        "coordinate_3_label": "Shelf",
+        "coordinate_3_indicator": shelf,
+        "location_profile": {"ref": location_profile},
+        "owner_repo": {"ref": "/repositories/2"},
+    }
+
+
 def has_note_type(ao, note_type="physdesc"):
     """Check whether an archival object has a note of a given type.
 
