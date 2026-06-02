@@ -1,4 +1,5 @@
 import logging
+from csv import DictReader, DictWriter
 from pathlib import Path
 
 from .aspace_client import ArchivesSpaceClient
@@ -10,6 +11,38 @@ class AddLocations:
         configure_logging(f"add_locations_{mode}.log")
         self.as_client = ArchivesSpaceClient(mode=mode)
         self.repo = self.as_client.aspace.repositories(repo_id)
+
+    def create_project_spreadsheet(self, input_csv, stack_filter=14):
+        """Creates a spreadsheet to facilitate manually linking locations in ASpace
+
+        Args:
+            input_csv (str): Path to the CSV file of stack locations
+        """
+        with open(input_csv, newline="", encoding="utf-8-sig") as infile, open(
+            f"stack_{stack_filter}_locations.csv", "w", newline=""
+        ) as outfile:
+            print("Starting...")
+            reader = DictReader(infile)
+            writer = DictWriter(
+                outfile, fieldnames=reader.fieldnames + ["as_location_id"]
+            )
+            writer.writeheader()
+            for original_row in reader:
+                stack_location = original_row["Location"]
+                if stack_location.startswith(f"{stack_filter}"):
+                    try:
+                        stack_num, aisle, section, shelf = [
+                            x.strip().lstrip("0") for x in stack_location.split(",")
+                        ]
+                        location_uri = self.get_location(
+                            f"Stack {stack_num}", aisle, section, shelf
+                        )
+                        as_location_id = location_uri.split("/")[-1]
+                    except Exception:
+                        as_location_id = "NOT FOUND"
+                    new_row = original_row
+                    new_row["as_location_id"] = as_location_id
+                    writer.writerow(new_row)
 
     def create_locations_from_textfile(self, input_file):
         """Create RBML location records from a plain text file.

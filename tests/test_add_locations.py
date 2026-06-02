@@ -1,7 +1,9 @@
+from csv import DictReader
+
 import pytest
 
 from scripts.add_locations import AddLocations
-from scripts.helpers import construct_rbml_location
+from scripts.helpers import construct_rbml_location, write_data_to_csv
 
 
 @pytest.fixture
@@ -82,3 +84,34 @@ def test_create_locations_error(location_adder, tmp_path, mocker):
     location_adder.create_locations_from_textfile(input_file)
 
     mock_error.assert_called_once()
+
+
+def test_create_project_spreadsheet(location_adder, tmp_path, mocker, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    csv_path = tmp_path / "csv_name.csv"
+    sheet_data = [
+        ["Location"],
+        ["14, 48w, 06, 04"],
+        ["14, 48w, 06, 05"],  # for exists in ASpace
+        ["14/63w/03 / 04"],
+        ["15, 57e&w, 04, 03"],
+    ]
+    write_data_to_csv(sheet_data, csv_path)
+
+    mocker.patch.object(
+        location_adder,
+        "get_location",
+        side_effect=["/locations/123", False],
+    )
+
+    location_adder.create_project_spreadsheet("csv_name.csv")
+
+    with open("stack_14_locations.csv", "r") as f:
+        reader = DictReader(f)
+        rows = [x for x in reader]
+        assert len(rows) == 3
+        for row in rows:
+            assert len(row) == 2
+        assert rows[0]["as_location_id"] == "123"
+        for row in rows[1:]:
+            assert row["as_location_id"] == "NOT FOUND"
