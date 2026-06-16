@@ -14,7 +14,9 @@ class DisambiguateBoxNums:
         self.as_client = ArchivesSpaceClient(mode=mode)
         self.repo = self.as_client.aspace.repositories(repo_id)
 
-    def process_series(self, resource_identifier, max_box_num, box_prefix, series_uri):
+    def process_series(
+        self, resource_identifier, max_box_num, box_prefix, series_uri, min_box_num=1
+    ):
         """Create prefixed top containers and update archival objects in a series.
 
         For each AO in the series with a single numeric box instance in the
@@ -24,7 +26,7 @@ class DisambiguateBoxNums:
         Args:
             resource_identifier (str): Collection identifier for top container search
             max_box_num (int): Highest box number to create prefixed containers for
-            box_prefix (str): Prefix to prepend to each box indicator (e.g., "FA_")
+            box_prefix (str): Prefix to prepend to each box indicator (e.g., "UP_")
             series_uri (str): URI of the series to process
         """
         container_list = {}
@@ -32,7 +34,7 @@ class DisambiguateBoxNums:
             self.repo, resource_identifier
         ):
             container_list[top_container.indicator] = top_container.uri
-        box_num_range = range(1, max_box_num + 1)
+        box_num_range = range(min_box_num, max_box_num + 1)
         for x in box_num_range:
             indicator = f"{box_prefix}{x}"
             top_container_uri = self.as_client.create_top_container(
