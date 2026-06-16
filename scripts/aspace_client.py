@@ -168,7 +168,7 @@ class ArchivesSpaceClient:
         ]
         return "; ".join(notes)
 
-    def create_top_container(self, repo_id, indicator):
+    def create_top_container(self, repo_id, indicator, type="box"):
         """Creates a new top container record in ASpace.
 
         Args:
@@ -181,7 +181,7 @@ class ArchivesSpaceClient:
         data = {
             "jsonmodel_type": "top_container",
             "indicator": indicator,
-            "type": "box",
+            "type": type,
         }
         response = self.aspace.client.post(
             f"/repositories/{repo_id}/top_containers", json=data
@@ -444,3 +444,23 @@ class ArchivesSpaceClient:
             f"{resource_uri}/accept_children", params=params
         )
         response.raise_for_status()
+
+    def get_resource_by_hrid(self, repo, hrid):
+        """Finds the resource whose id_0 matches a FOLIO HRID.
+
+        Args:
+            repo (obj): ASnake repository object to search within.
+            hrid (str): FOLIO instance HRID, which corresponds to the resource's
+                id_0.
+
+        Returns:
+            obj: The matching ASnake resource object, or None if no resource has
+                an id_0 equal to the HRID.
+        """
+        resources = repo.search.with_params(
+            q=f"primary_type:resource identifier:{hrid}"
+        )
+        for resource in resources:
+            if resource.id_0 == hrid:
+                return resource
+        return None
