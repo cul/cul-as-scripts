@@ -57,9 +57,11 @@ def test_get_rows_for_hrid_containers(barcode_fetcher, mocker):
     result = barcode_fetcher.get_rows_for_hrid("in123456")
 
     assert len(result) == 2
+    assert result[0]["container_type"] == "box"
+    assert result[0]["container_indicator"] == "1"
     assert result[0]["container_label"] == "box 1"
     assert result[0]["container_barcode"] == "RS00123456"
-    assert len(result[0].keys()) == 4
+    assert len(result[0].keys()) == 6
     assert result[1]["container_barcode"] == ""
 
 
@@ -82,6 +84,8 @@ def test_write_csv(barcode_fetcher, tmp_path):
     rows = [
         {
             "instance_hrid": "in123456",
+            "container_type": "box",
+            "container_indicator": "1",
             "container_label": "box 1",
             "container_barcode": "RS00123456",
             "container_uri": "/repositories/2/top_containers/124",
@@ -97,12 +101,16 @@ def test_write_csv(barcode_fetcher, tmp_path):
 
     assert written_data[0] == [
         "instance_hrid",
+        "container_type",
+        "container_indicator",
         "container_label",
         "container_barcode",
         "container_uri",
     ]
     assert written_data[1] == [
         "in123456",
+        "box",
+        "1",
         "box 1",
         "RS00123456",
         "/repositories/2/top_containers/124",

@@ -29,6 +29,60 @@ class AspaceBarcodeFetcher:
         self.write_csv(rows, output_path)
         logging.info(f"Wrote {len(rows)} rows to {output_path}")
 
+    def access_notes_csv(self, hrid_csv_path, output_path):
+        """Fetches accessrestrict notes for each unique HRID in a CSV.
+
+        Args:
+            hrid_csv_path (str): Path to a CSV with an instance_hrid column.
+            output_path (str): Path to the output CSV file.
+        """
+        hrids = self.get_unique_hrids(hrid_csv_path)
+        logging.info(f"Found {len(hrids)} unique HRIDs in {hrid_csv_path}")
+        rows = []
+        for hrid in hrids:
+            try:
+                logging.info(f"Processing {hrid}")
+                row = self.get_note_for_hrid(hrid)
+                if row:
+                    rows.append(row)
+            except Exception as e:
+                logging.error(e)
+        fieldnames = [
+            "instance_hrid",
+            "resource_uri",
+            "access_restriction",
+        ]
+        with open(output_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+        logging.info(f"Wrote {len(rows)} rows to {output_path}")
+
+    def get_note_for_hrid(self, hrid):
+        """Fetches the combined accessrestrict text for a single HRID's resource.
+
+        Args:
+            hrid (str): FOLIO instance HRID (the resource's id_0).
+
+        Returns:
+            dict | None: A row with the resource URI and accessrestrict text,
+                or None if no resource is found for the HRID.
+        """
+        resource = self.as_client.get_resource_by_hrid(self.repo, hrid)
+        if resource is None:
+            logging.warning(f"No resource found for HRID {hrid}")
+            return None
+        access_restriction = self.as_client.get_note_content_by_type(
+            resource, "accessrestrict"
+        )
+        if not access_restriction:
+            logging.warning(f"No conditions governing access notes for HRID {hrid}")
+        return {
+            "instance_hrid": hrid,
+            "resource_uri": resource.uri,
+            "access_restriction": access_restriction,
+        }
+
     def get_unique_hrids(self, folio_csv_path):
         """Reads the FOLIO CSV and returns the unique instance HRIDs.
 
@@ -43,26 +97,19 @@ class AspaceBarcodeFetcher:
         return list(dict.fromkeys(hrids))
 
     def get_rows_for_hrid(self, hrid):
-        """Fetches top container data for a single HRID.
-
-        Args:
-            hrid (str): Instance HRID to use as the collection identifier.
-
-        Returns:
-            list[dict]: Rows of top container data for this HRID. Empty if no
-                top containers are found in ASpace for the given HRID.
-        """
         rows = []
         for top_container in self.as_client.get_top_containers_for_resource(
             self.repo, hrid
         ):
-            barcode = getattr(top_container, "barcode", "")
             container_type = getattr(top_container, "type", "")
+            indicator = getattr(top_container, "indicator", "")
             rows.append(
                 {
                     "instance_hrid": hrid,
-                    "container_label": f"{container_type} {top_container.indicator}",
-                    "container_barcode": barcode,
+                    "container_type": container_type,
+                    "container_indicator": indicator,
+                    "container_label": f"{container_type} {indicator}".strip(),
+                    "container_barcode": getattr(top_container, "barcode", ""),
                     "container_uri": top_container.uri,
                 }
             )
@@ -79,6 +126,8 @@ class AspaceBarcodeFetcher:
         """
         fieldnames = [
             "instance_hrid",
+            "container_type",
+            "container_indicator",
             "container_label",
             "container_barcode",
             "container_uri",
