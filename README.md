@@ -18,18 +18,19 @@ container data, digital objects, locations, and metadata exports.
 
 ## Scripts
 
-| Script                        | Description                                                                                          |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `add_containers.py`           | Propagates container instance data to archival objects missing it                                    |
-| `add_dlc_dos.py`              | Creates and attaches IIIF digital objects to archival objects                                        |
-| `add_locations.py`            | Adds location data to top containers                                                                 |
-| `add_metadata_rights.py`      | Adds metadata rights declarations to published resources                                             |
-| `aspace_barcodes.py`          | Fetches top container barcodes using FOLIO HRIDs; adds barcodes to top containers from a spreadsheet |
-| `reorder_one_series.py`       | Identifies and removes redundant single-series structure                                             |
-| `restriction_lifter.py`       | Exports and removes expired access restriction notes                                                 |
-| `update_access_notes.py`      | Updates access restriction note text across a series or repository                                   |
-| `update_hyacinth_metadata.py` | Exports archival object metadata for Hyacinth import                                                 |
-| `update_instances.py`         | Disambiguates box numbers by adding prefixes to container indicators                                 |
+| Script                        | Description                                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `add_containers.py`           | Propagates container instance data to archival objects missing it                                                         |
+| `add_dlc_dos.py`              | Creates and attaches IIIF digital objects to archival objects                                                             |
+| `add_locations.py`            | Adds location data to top containers                                                                                      |
+| `add_metadata_rights.py`      | Adds metadata rights declarations to published resources                                                                  |
+| `aspace_barcodes.py`          | Fetches top container barcodes using FOLIO HRIDs; adds barcodes to top containers from a spreadsheet                      |
+| `container_location_audit.py` | Audits published resources, comparing stated location in access notes against top container barcode and location coverage |
+| `reorder_one_series.py`       | Identifies and removes redundant single-series structure                                                                  |
+| `restriction_lifter.py`       | Exports and removes expired access restriction notes                                                                      |
+| `update_access_notes.py`      | Updates access restriction note text across a series or repository                                                        |
+| `update_hyacinth_metadata.py` | Exports archival object metadata for Hyacinth import                                                                      |
+| `update_instances.py`         | Disambiguates box numbers by adding prefixes to container indicators                                                      |
 
 ## Contribution standards
 
