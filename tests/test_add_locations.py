@@ -3,7 +3,11 @@ from csv import DictReader
 import pytest
 
 from scripts.add_locations import AddLocations
-from scripts.helpers import construct_rbml_location, write_data_to_csv
+from scripts.helpers import (
+    construct_rbml_location,
+    construct_rbml_mapcase_location,
+    write_data_to_csv,
+)
 
 
 @pytest.fixture
@@ -55,6 +59,24 @@ def test_create_locations_from_textfile(location_adder, tmp_path, mocker):
     )
     location_adder.as_client.aspace.client.post.assert_any_call(
         "/locations", json=construct_rbml_location("Stack 14", "35e", "7", "3")
+    )
+
+
+def test_create_mapcase_locations_from_textfile(location_adder, tmp_path, mocker):
+    input_file = tmp_path / "text_file.txt"
+    input_file.write_text("13-A-1\n13-B-10\n14-G-2")
+
+    location_adder.create_mapcase_locations_from_textfile(input_file)
+
+    assert location_adder.as_client.aspace.client.post.call_count == 3
+    location_adder.as_client.aspace.client.post.assert_any_call(
+        "/locations", json=construct_rbml_mapcase_location("Stack 13", "A", "1")
+    )
+    location_adder.as_client.aspace.client.post.assert_any_call(
+        "/locations", json=construct_rbml_mapcase_location("Stack 13", "B", "10")
+    )
+    location_adder.as_client.aspace.client.post.assert_any_call(
+        "/locations", json=construct_rbml_mapcase_location("Stack 14", "G", "2")
     )
 
 

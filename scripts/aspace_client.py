@@ -142,12 +142,30 @@ class ArchivesSpaceClient:
             ASnakeObject: Archival object records in the resource
         """
         repo_id = repo_id or self.RBML_REPO_ID
-        search_query = f'primary_type:archival_object AND resource:"/repositories/{repo_id}/resources/{resource_id}"'
+        search_query = f'primary_type:archival_object resource:"/repositories/{repo_id}/resources/{resource_id}"'
         search_results = self.aspace.repositories(repo_id).search.with_params(
             q=search_query
         )
         for ao in search_results:
             yield ao
+
+    def get_all_dos_in_resource(self, resource_id, repo_id=None):
+        """Get all digital objects in a resource.
+
+        Args:
+            resource_id (int): ASpace resource ID (e.g., 1234)
+            repo_id (int, optional): ASpace repository ID. Defaults to RBML_REPO_ID.
+
+        Yields:
+            ASnakeObject: Digital object records in the resource
+        """
+        repo_id = repo_id or self.RBML_REPO_ID
+        search_query = f'primary_type:digital_object collection_uri_u_sstr:"/repositories/{repo_id}/resources/{resource_id}"'
+        search_results = self.aspace.repositories(repo_id).search.with_params(
+            q=search_query
+        )
+        for do in search_results:
+            yield do
 
     def get_note_content_by_type(self, ao_or_resource, note_type):
         """Get the text of notes of a given type in an archival object or resource record.

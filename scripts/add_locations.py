@@ -3,7 +3,11 @@ from csv import DictReader, DictWriter
 from pathlib import Path
 
 from .aspace_client import ArchivesSpaceClient
-from .helpers import configure_logging, construct_rbml_location
+from .helpers import (
+    configure_logging,
+    construct_rbml_location,
+    construct_rbml_mapcase_location,
+)
 
 
 class AddLocations:
@@ -72,6 +76,32 @@ class AddLocations:
                 response.raise_for_status()
                 logging.info(
                     f"Created location: Stack {stack_num}, {aisle}, {section}, {shelf}"
+                )
+            except Exception as e:
+                logging.error(e)
+
+    def create_mapcase_locations_from_textfile(self, input_file):
+        """Create RBML location records from a plain text file.
+
+        Each line in the file should contain a hyphen-separated location string
+        in the format: stack, mapcase, drawer, shelf (e.g., "14-A-1").
+
+        Args:
+            input_file (str or Path): Path to the text file of location strings
+        """
+        file_path = Path(input_file)
+        for line in file_path.read_text().splitlines():
+            try:
+                stack_num, mapcase, drawer = [x.strip() for x in line.split("-")]
+                location_json = construct_rbml_mapcase_location(
+                    f"Stack {stack_num}", mapcase, drawer
+                )
+                response = self.as_client.aspace.client.post(
+                    "/locations", json=location_json
+                )
+                response.raise_for_status()
+                logging.info(
+                    f"Created location: Stack {stack_num}, Mapcase {mapcase}, Drawer {drawer}"
                 )
             except Exception as e:
                 logging.error(e)

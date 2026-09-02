@@ -117,7 +117,7 @@ def construct_external_doc(title, location, publish=False):
 def construct_rbml_location(
     floor, aisle, section, shelf, location_profile="/location_profiles/31"
 ):
-    """Build an ArchivesSpace location dict for RBML.
+    """Build an ArchivesSpace location dict for an RBML shelf.
 
     Args:
            floor (str): The floor coordinate (e.g., "Stack 14")
@@ -139,6 +139,33 @@ def construct_rbml_location(
         "coordinate_2_indicator": section,
         "coordinate_3_label": "Shelf",
         "coordinate_3_indicator": shelf,
+        "location_profile": {"ref": location_profile},
+        "owner_repo": {"ref": "/repositories/2"},
+    }
+
+
+def construct_rbml_mapcase_location(
+    floor, mapcase, drawer, location_profile="/location_profiles/29"
+):
+    """Build an ArchivesSpace location dict for an RBML mapcase.
+
+    Args:
+           floor (str): The floor coordinate (e.g., "Stack 14")
+           mapcase (str): The mapcase coordinate (e.g., "A")
+           drawer (str): The drawer coordinate (e.g., "1")
+           location_profile (str): URI of the location profile
+
+    Returns:
+        dict: ASpace location JSON object
+    """
+    return {
+        "jsonmodel_type": "location",
+        "building": "Butler",
+        "floor": floor,
+        "coordinate_1_label": "Mapcase",
+        "coordinate_1_indicator": mapcase,
+        "coordinate_2_label": "Drawer",
+        "coordinate_2_indicator": drawer,
         "location_profile": {"ref": location_profile},
         "owner_repo": {"ref": "/repositories/2"},
     }
